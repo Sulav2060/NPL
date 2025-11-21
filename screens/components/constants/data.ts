@@ -1,4 +1,3 @@
-
 export type Player = {
   id: string;
   name: string;
@@ -6,6 +5,12 @@ export type Player = {
   captain?: boolean;
   wicketKeeper?: boolean;
   image?: string;
+  matches?: number;
+  runs?: number;
+  wickets?: number;
+  average?: number;
+  strikeRate?: number;
+  economy?: number;
 };
 
 export type Team = {
@@ -25,10 +30,21 @@ export const NPL_TEAMS: Team[] = [
     logo: "https://upload.wikimedia.org/wikipedia/en/thumb/8/88/Biratnagar_Kings_logo.png/200px-Biratnagar_Kings_logo.png",
     color: "#003893",
     players: [
-      { id: "b_p1", name: "Sandeep Lamichhane", role: "Bowler", captain: true, image: "https://resources.pulse.icc-cricket.com/players/284/4492.png" },
-      { id: "b_p2", name: "Faf du Plessis", role: "Batsman", image: "https://via.placeholder.com/150" },
-      { id: "b_p3", name: "Martin Guptill", role: "Batsman", image: "https://via.placeholder.com/150" },
-      { id: "b_p4", name: "Marchant de Lange", role: "Bowler", image: "https://via.placeholder.com/150" },
+     { id: "b_p1", name: "Sandeep Lamichhane", role: "Bowler", captain: true,
+  image: "https://resources.pulse.icc-cricket.com/players/284/4492.png",
+  matches: 68, runs: 79, wickets: 129, average: 12.15, strikeRate: 12.08, economy: 6.03
+},
+
+{ id: "b_p2", name: "Faf du Plessis", role: "Batsman",
+  image: "https://via.placeholder.com/150",
+  matches: 50, runs: 1528, wickets: 0, average: 35.53, strikeRate: 134.39
+},
+
+{ id: "b_p3", name: "Martin Guptill", role: "Batsman",
+  image: "https://via.placeholder.com/150",
+  matches: 122, runs: 3531, wickets: 0, average: 31.81, strikeRate: 135.71
+},
+ { id: "b_p4", name: "Marchant de Lange", role: "Bowler", image: "https://via.placeholder.com/150" },
       { id: "b_p5", name: "Sam Heazlett", role: "Batsman", image: "https://via.placeholder.com/150" },
       { id: "b_p6", name: "George Munsey", role: "Batsman", image: "https://via.placeholder.com/150" },
       { id: "b_p7", name: "Lokesh Bam", role: "Wicket Keeper", wicketKeeper: true, image: "https://via.placeholder.com/150" },
@@ -53,8 +69,11 @@ export const NPL_TEAMS: Team[] = [
     logo: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a8/Chitwan_Rhinos_logo.png/200px-Chitwan_Rhinos_logo.png",
     color: "#2E7D32",
     players: [
-      { id: "c_p1", name: "Kushal Malla", role: "Batsman", captain: true, image: "https://resources.pulse.icc-cricket.com/players/284/6554.png" },
-      { id: "c_p2", name: "Dawid Malan", role: "Batsman", image: "https://via.placeholder.com/150" },
+      { id: "c_p1", name: "Kushal Malla", role: "Batsman", captain: true,
+  image: "https://resources.pulse.icc-cricket.com/players/284/6554.png",
+  matches: 59, runs: 1003, wickets: 18, average: 23.33, strikeRate: 138.54, economy: 6.33
+},
+  { id: "c_p2", name: "Dawid Malan", role: "Batsman", image: "https://via.placeholder.com/150" },
       { id: "c_p3", name: "Ravi Bopara", role: "All-Rounder", image: "https://via.placeholder.com/150" },
       { id: "c_p4", name: "Sohail Tanvir", role: "Bowler", image: "https://via.placeholder.com/150" },
       { id: "c_p5", name: "Kamal Singh Airee", role: "All-Rounder", image: "https://via.placeholder.com/150" },
@@ -109,8 +128,11 @@ export const NPL_TEAMS: Team[] = [
     logo: "https://via.placeholder.com/200x200.png?text=Karnali",
     color: "#1A237E",
     players: [
-      { id: "ky_p1", name: "Sompal Kami", role: "All-Rounder", captain: true, image: "https://resources.pulse.icc-cricket.com/players/284/4493.png" },
-      { id: "ky_p2", name: "Najibullah Zadran", role: "All-Rounder", image: "https://via.placeholder.com/150" },
+    { id: "ky_p1", name: "Sompal Kami", role: "All-Rounder", captain: true,
+  image: "https://img1.hscicdn.com/image/upload/f_auto,t_ds_square_w_960/lsci/db/PICTURES/CMS/383000/383010.jpg",
+  matches: 86, runs: 365, wickets: 81, average: 23.56, strikeRate: 111.63, economy: 6.38
+},
+  { id: "ky_p2", name: "Najibullah Zadran", role: "All-Rounder", image: "https://via.placeholder.com/150" },
       { id: "ky_p3", name: "Max O'Dowd", role: "Batsman", image: "https://via.placeholder.com/150" },
       { id: "ky_p4", name: "Mark Watt", role: "Bowler", image: "https://via.placeholder.com/150" },
       { id: "ky_p5", name: "Priyank Panchal", role: "Batsman", image: "https://via.placeholder.com/150" },
@@ -137,9 +159,15 @@ export const NPL_TEAMS: Team[] = [
     logo: "https://upload.wikimedia.org/wikipedia/en/thumb/4/44/Kathmandu_Kings_XI_logo.png/200px-Kathmandu_Kings_XI_logo.png",
     color: "#D32F2F",
     players: [
-      { id: "k_p1", name: "Karan KC", role: "All-Rounder", captain: true, image: "https://via.placeholder.com/150" },
-      { id: "k_p2", name: "Rashid Khan", role: "Bowler", image: "https://via.placeholder.com/150" },
-      { id: "k_p3", name: "Gerhard Erasmus", role: "Batsman", image: "https://via.placeholder.com/150" },
+     { id: "k_p1", name: "Karan KC", role: "All-Rounder", captain: true,
+  image: "https://via.placeholder.com/150",
+  matches: 85, runs: 468, wickets: 106, average: 20.15, strikeRate: 151.46, economy: 7.73
+},
+ { id: "k_p2", name: "Rashid Khan", role: "Bowler",
+  image: "https://via.placeholder.com/150",
+  matches: 108, runs: 602, wickets: 182, average: 13.69, strikeRate: 13.53, economy: 6.07
+},
+     { id: "k_p3", name: "Gerhard Erasmus", role: "Batsman", image: "https://via.placeholder.com/150" },
       { id: "k_p4", name: "Ben Charlesworth", role: "Batsman", image: "https://via.placeholder.com/150" },
       { id: "k_p5", name: "Milind Kumar", role: "Batsman", image: "https://via.placeholder.com/150" },
       { id: "k_p6", name: "Ricardo Vasconcelos", role: "Wicket Keeper", wicketKeeper: true, image: "https://via.placeholder.com/150" },
@@ -165,8 +193,11 @@ export const NPL_TEAMS: Team[] = [
     logo: "https://via.placeholder.com/200x200.png?text=Lumbini",
     color: "#E65100",
     players: [
-      { id: "l_p1", name: "Rohit Paudel", role: "Batsman", captain: true, image: "https://resources.pulse.icc-cricket.com/players/284/4999.png" },
-      { id: "l_p2", name: "D'Arcy Short", role: "Batsman", image: "https://via.placeholder.com/150" },
+    { id: "l_p1", name: "Rohit Paudel", role: "Batsman", captain: true,
+  image: "https://resources.pulse.icc-cricket.com/players/284/4999.png",
+  matches: 76, runs: 1637, wickets: 13, average: 27.75, strikeRate: 119.49, economy: 6.58
+},
+  { id: "l_p2", name: "D'Arcy Short", role: "Batsman", image: "https://via.placeholder.com/150" },
       { id: "l_p3", name: "Gulbadin Naib", role: "All-Rounder", image: "https://via.placeholder.com/150" },
       { id: "l_p4", name: "JJ Smit", role: "All-Rounder", image: "https://via.placeholder.com/150" },
       { id: "l_p5", name: "Ruben Trumpelmann", role: "Bowler", image: "https://via.placeholder.com/150" },
@@ -192,8 +223,11 @@ export const NPL_TEAMS: Team[] = [
     logo: "https://upload.wikimedia.org/wikipedia/en/thumb/c/c0/Pokhara_Rhinos_logo.png/200px-Pokhara_Rhinos_logo.png",
     color: "#8E24AA",
     players: [
-      { id: "p_p1", name: "Kushal Bhurtel", role: "Batsman", captain: true, image: "https://resources.pulse.icc-cricket.com/players/284/5019.png" },
-      { id: "p_p2", name: "Jason Roy", role: "Batsman", image: "https://via.placeholder.com/150" },
+     { id: "p_p1", name: "Kushal Bhurtel", role: "Batsman", captain: true,
+  image: "https://resources.pulse.icc-cricket.com/players/284/5020.png",
+  matches: 70, runs: 1807, wickets: 0, average: 29.15, strikeRate: 127.35
+},
+ { id: "p_p2", name: "Jason Roy", role: "Batsman", image: "https://via.placeholder.com/150" },
       { id: "p_p3", name: "James Neesham", role: "All-Rounder", image: "https://via.placeholder.com/150" },
       { id: "p_p4", name: "Raymon Reifer", role: "All-Rounder", image: "https://via.placeholder.com/150" },
       { id: "p_p5", name: "Dan Douthwaite", role: "All-Rounder", image: "https://via.placeholder.com/150" },
@@ -223,8 +257,14 @@ export const NPL_TEAMS: Team[] = [
     logo: "https://via.placeholder.com/200x200.png?text=Sudurpaschim",
     color: "#00838F",
     players: [
-      { id: "s_p1", name: "Dipendra Singh Airee", role: "All-Rounder", captain: true, image: "https://resources.pulse.icc-cricket.com/players/284/4496.png" },
-      { id: "s_p2", name: "Chris Lynn", role: "Batsman", image: "https://via.placeholder.com/150" },
+      { id: "s_p1", name: "Dipendra Singh Airee", role: "All-Rounder", captain: true,
+  image: "https://resources.pulse.icc-cricket.com/players/284/4496.png",
+  matches: 90, runs: 1956, wickets: 58, average: 32.07, strikeRate: 140.12, economy: 6.05
+},
+{ id: "s_p2", name: "Chris Lynn", role: "Batsman",
+  image: "https://via.placeholder.com/150",
+  matches: 18, runs: 291, wickets: 0, average: 19.40, strikeRate: 131.68
+},
       { id: "s_p3", name: "Josh Brown", role: "Batsman", image: "https://via.placeholder.com/150" },
       { id: "s_p4", name: "Scott Kuggeleijn", role: "Bowler", image: "https://via.placeholder.com/150" },
       { id: "s_p5", name: "Harmeet Singh", role: "Bowler", image: "https://via.placeholder.com/150" },
