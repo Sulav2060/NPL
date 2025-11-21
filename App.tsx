@@ -12,8 +12,6 @@ import {
 } from "@expo/vector-icons";
 import "./global.css";
 
-import HomeScreen from "./screens/HomeScreen";
-import ScoresScreen from "./screens/ScoresScreen";
 import FixturesScreen from "./screens/FixturesScreen";
 import TableScreen from "./screens/TableScreen";
 import StatsScreen from "./screens/StatsScreen";
@@ -58,28 +56,6 @@ export default function App() {
             },
           }}
         >
-          <Tab.Screen
-            name="Home"
-            component={HomeScreen}
-            options={{
-              tabBarIcon: ({ color, size }) => (
-                <Ionicons name="home-outline" size={24} color={color} />
-              ),
-            }}
-          />
-          <Tab.Screen
-            name="Scores"
-            component={ScoresScreen}
-            options={{
-              tabBarIcon: ({ color, size }) => (
-                <MaterialCommunityIcons
-                  name="cricket"
-                  size={24}
-                  color={color}
-                />
-              ),
-            }}
-          />
           <Tab.Screen
             name="Fixtures"
             component={FixturesScreen}

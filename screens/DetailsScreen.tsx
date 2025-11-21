@@ -109,9 +109,13 @@ export default function DetailsScreen({ navigation }: DetailsScreenProps) {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50 dark:bg-black" edges={["top"]}>
-      <View className="flex-row items-center justify-between px-4 py-3 mb-2">
-        <Text className="text-2xl font-extrabold text-gray-900 dark:text-white">
-          NPL Teams
+      {/* Header */}
+      <View className="px-6 py-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+        <Text className="text-blue-600 font-bold text-xs uppercase tracking-widest mb-1">
+          Nepal Premier League
+        </Text>
+        <Text className="text-3xl font-black text-gray-900 dark:text-white italic">
+          DETAILS
         </Text>
       </View>
       <FlatList
