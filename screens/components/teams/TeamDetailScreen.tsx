@@ -22,12 +22,12 @@ import Sudurpachim_logo from "../constants/sudurpachim_logo.png";
 
 const TEAM_LOGOS: Record<string, ImageSourcePropType> = {
   "1": Biratnagar_logo,
-  "2": Ktm_logo,
-  "3": Rhinos_logo,
-  "4": Pkr_logo,
-  "5": Janakpur_logo,
+  "5": Ktm_logo,
+  "2": Rhinos_logo,
+  "7": Pkr_logo,
+  "3": Janakpur_logo,
   "6": Lumbini_logo,
-  "7": Karnali_logo,
+  "4": Karnali_logo,
   "8": Sudurpachim_logo,
 };
 
