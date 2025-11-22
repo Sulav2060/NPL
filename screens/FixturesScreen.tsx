@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -12,7 +12,6 @@ import {
   UIManager,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons"; // Ensure you have @expo/vector-icons or use a text char
 
 // --- Import Logos (Adjust path if needed) ---
 import Biratnagar_logo from "./components/constants/biratnagar_logo.png";
@@ -24,6 +23,18 @@ import Pkr_logo from "./components/constants/pkr_logo.png";
 import Rhinos_logo from "./components/constants/rhinos-logo.webp";
 import Sudurpachim_logo from "./components/constants/sudurpachim_logo.png";
 
+// --- Import Utilities ---
+import {
+  getStatus,
+  getDiffDays,
+  getDayTitle,
+  formatTimeFromDate,
+  categorizeSectionsByDate,
+  RAW_SECTIONS,
+  type Match,
+  type SectionData,
+} from "./components/constants/fixturesUtils";
+
 // Enable LayoutAnimation for Android
 if (
   Platform.OS === "android" &&
@@ -33,25 +44,7 @@ if (
 }
 
 import { useNavigation } from "@react-navigation/native";
-
-// --- Types ---
-type MatchStatus = "UPCOMING" | "LIVE" | "FINISHED" | "TODAY";
-
-export type Match = {
-  id: string;
-  team1: string;
-  team2: string;
-  time: string;
-  title?: string; // For Playoffs
-  specialType?: "qualifier" | "eliminator" | "final";
-  fullDate: Date; // Used for logic
-};
-
-type SectionData = {
-  title: string;
-  data: Match[];
-  isPast?: boolean;
-};
+import { MATCH_RESULTS } from "./components/constants/tableLogic";
 
 // --- Logo & Color Mapping ---
 const TEAM_ASSETS: Record<
@@ -69,389 +62,6 @@ const TEAM_ASSETS: Record<
 };
 
 const PLACEHOLDER_LOGO = { uri: "https://via.placeholder.com/50" };
-
-// --- Helper: Parse Data ---
-// Mock Current Date: Nov 21, 2025
-const CURRENT_DATE = new Date("2025-11-21T12:05:04Z");
-
-const getStatus = (matchDate: Date): MatchStatus => {
-  const now = CURRENT_DATE;
-  // Reset times for pure date comparison
-  const d1 = new Date(
-    matchDate.getFullYear(),
-    matchDate.getMonth(),
-    matchDate.getDate()
-  );
-  const d2 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-  if (d1.getTime() === d2.getTime()) return "TODAY";
-  if (d1 < d2) return "FINISHED";
-  return "UPCOMING";
-};
-
-const d = (month: number, day: number, hour: number = 0) =>
-  new Date(2025, month - 1, day, hour);
-
-const RAW_SECTIONS: SectionData[] = [
-  {
-    title: "Monday, 17 Nov",
-    data: [
-      {
-        id: "1",
-        team1: "Janakpur Bolts",
-        team2: "Kathmandu Gorkhas",
-        time: "04:00 PM",
-        fullDate: d(11, 17, 16),
-      },
-    ],
-  },
-  {
-    title: "Tuesday, 18 Nov",
-    data: [
-      {
-        id: "2",
-        team1: "Chitwan Rhinos",
-        team2: "Karnali Yaks",
-        time: "11:45 AM",
-        fullDate: d(11, 18, 11),
-      },
-      {
-        id: "3",
-        team1: "Biratnagar Kings",
-        team2: "Pokhara Avengers",
-        time: "04:00 PM",
-        fullDate: d(11, 18, 16),
-      },
-    ],
-  },
-  {
-    title: "Wednesday, 19 Nov",
-    data: [
-      {
-        id: "4",
-        team1: "Kathmandu Gorkhas",
-        team2: "Sudurpaschim Royals",
-        time: "04:00 PM",
-        fullDate: d(11, 19, 16),
-      },
-    ],
-  },
-  {
-    title: "Thursday, 20 Nov",
-    data: [
-      {
-        id: "5",
-        team1: "Lumbini Lions",
-        team2: "Chitwan Rhinos",
-        time: "04:00 PM",
-        fullDate: d(11, 20, 16),
-      },
-    ],
-  },
-  {
-    title: "Friday, 21 Nov",
-    data: [
-      {
-        id: "6",
-        team1: "Pokhara Avengers",
-        team2: "Sudurpaschim Royals",
-        time: "04:00 PM",
-        fullDate: d(11, 21, 16),
-      },
-    ],
-  },
-  {
-    title: "Saturday, 22 Nov",
-    data: [
-      {
-        id: "7",
-        team1: "Karnali Yaks",
-        team2: "Lumbini Lions",
-        time: "11:15 AM",
-        fullDate: d(11, 22, 11),
-      },
-      {
-        id: "8",
-        team1: "Kathmandu Gorkhas",
-        team2: "Biratnagar Kings",
-        time: "03:30 PM",
-        fullDate: d(11, 22, 15),
-      },
-    ],
-  },
-  {
-    title: "Monday, 24 Nov",
-    data: [
-      {
-        id: "9",
-        team1: "Janakpur Bolts",
-        team2: "Biratnagar Kings",
-        time: "11:45 AM",
-        fullDate: d(11, 24, 11),
-      },
-      {
-        id: "10",
-        team1: "Sudurpaschim Royals",
-        team2: "Karnali Yaks",
-        time: "04:00 PM",
-        fullDate: d(11, 24, 16),
-      },
-    ],
-  },
-  {
-    title: "Tuesday, 25 Nov",
-    data: [
-      {
-        id: "11",
-        team1: "Kathmandu Gorkhas",
-        team2: "Lumbini Lions",
-        time: "04:00 PM",
-        fullDate: d(11, 25, 16),
-      },
-    ],
-  },
-  {
-    title: "Wednesday, 26 Nov",
-    data: [
-      {
-        id: "12",
-        team1: "Biratnagar Kings",
-        team2: "Chitwan Rhinos",
-        time: "04:00 PM",
-        fullDate: d(11, 26, 16),
-      },
-    ],
-  },
-  {
-    title: "Thursday, 27 Nov",
-    data: [
-      {
-        id: "13",
-        team1: "Lumbini Lions",
-        team2: "Sudurpaschim Royals",
-        time: "11:45 AM",
-        fullDate: d(11, 27, 11),
-      },
-      {
-        id: "14",
-        team1: "Janakpur Bolts",
-        team2: "Pokhara Avengers",
-        time: "04:00 PM",
-        fullDate: d(11, 27, 16),
-      },
-    ],
-  },
-  {
-    title: "Friday, 28 Nov",
-    data: [
-      {
-        id: "15",
-        team1: "Chitwan Rhinos",
-        team2: "Kathmandu Gorkhas",
-        time: "11:45 AM",
-        fullDate: d(11, 28, 11),
-      },
-      {
-        id: "16",
-        team1: "Karnali Yaks",
-        team2: "Biratnagar Kings",
-        time: "04:00 PM",
-        fullDate: d(11, 28, 16),
-      },
-    ],
-  },
-  {
-    title: "Saturday, 29 Nov",
-    data: [
-      {
-        id: "17",
-        team1: "Pokhara Avengers",
-        team2: "Lumbini Lions",
-        time: "11:15 AM",
-        fullDate: d(11, 29, 11),
-      },
-      {
-        id: "18",
-        team1: "Sudurpaschim Royals",
-        team2: "Janakpur Bolts",
-        time: "03:30 PM",
-        fullDate: d(11, 29, 15),
-      },
-    ],
-  },
-  {
-    title: "Sunday, 30 Nov",
-    data: [
-      {
-        id: "19",
-        team1: "Karnali Yaks",
-        team2: "Kathmandu Gorkhas",
-        time: "03:30 PM",
-        fullDate: d(11, 30, 15),
-      },
-    ],
-  },
-  {
-    title: "Tuesday, 02 Dec",
-    data: [
-      {
-        id: "20",
-        team1: "Janakpur Bolts",
-        team2: "Chitwan Rhinos",
-        time: "11:45 AM",
-        fullDate: d(12, 2, 11),
-      },
-      {
-        id: "21",
-        team1: "Pokhara Avengers",
-        team2: "Karnali Yaks",
-        time: "04:00 PM",
-        fullDate: d(12, 2, 16),
-      },
-    ],
-  },
-  {
-    title: "Wednesday, 03 Dec",
-    data: [
-      {
-        id: "22",
-        team1: "Biratnagar Kings",
-        team2: "Lumbini Lions",
-        time: "04:00 PM",
-        fullDate: d(12, 3, 16),
-      },
-    ],
-  },
-  {
-    title: "Thursday, 04 Dec",
-    data: [
-      {
-        id: "23",
-        team1: "Pokhara Avengers",
-        team2: "Kathmandu Gorkhas",
-        time: "11:45 AM",
-        fullDate: d(12, 4, 11),
-      },
-      {
-        id: "24",
-        team1: "Sudurpaschim Royals",
-        team2: "Chitwan Rhinos",
-        time: "04:00 PM",
-        fullDate: d(12, 4, 16),
-      },
-    ],
-  },
-  {
-    title: "Friday, 05 Dec",
-    data: [
-      {
-        id: "25",
-        team1: "Lumbini Lions",
-        team2: "Janakpur Bolts",
-        time: "04:00 PM",
-        fullDate: d(12, 5, 16),
-      },
-    ],
-  },
-  {
-    title: "Saturday, 06 Dec",
-    data: [
-      {
-        id: "26",
-        team1: "Sudurpaschim Royals",
-        team2: "Biratnagar Kings",
-        time: "11:15 AM",
-        fullDate: d(12, 6, 11),
-      },
-      {
-        id: "27",
-        team1: "Chitwan Rhinos",
-        team2: "Pokhara Avengers",
-        time: "03:30 PM",
-        fullDate: d(12, 6, 15),
-      },
-    ],
-  },
-  {
-    title: "Sunday, 07 Dec",
-    data: [
-      {
-        id: "28",
-        team1: "Karnali Yaks",
-        team2: "Janakpur Bolts",
-        time: "03:30 PM",
-        fullDate: d(12, 7, 15),
-      },
-    ],
-  },
-  {
-    title: "Tuesday, 09 Dec",
-    data: [
-      {
-        id: "Q1",
-        team1: "1st Place",
-        team2: "2nd Place",
-        time: "04:00 PM",
-        title: "Qualifier 1",
-        specialType: "qualifier",
-        fullDate: d(12, 9, 16),
-      },
-    ],
-  },
-  {
-    title: "Wednesday, 10 Dec",
-    data: [
-      {
-        id: "EL",
-        team1: "3rd Place",
-        team2: "4th Place",
-        time: "04:00 PM",
-        title: "Eliminator",
-        specialType: "eliminator",
-        fullDate: d(12, 10, 16),
-      },
-    ],
-  },
-  {
-    title: "Thursday, 11 Dec",
-    data: [
-      {
-        id: "Q2",
-        team1: "Loser Q1",
-        team2: "Winner E",
-        time: "04:00 PM",
-        title: "Qualifier 2",
-        specialType: "qualifier",
-        fullDate: d(12, 11, 16),
-      },
-    ],
-  },
-  {
-    title: "Saturday, 13 Dec",
-    data: [
-      {
-        id: "FN",
-        team1: "Winner Q1",
-        team2: "Winner Q2",
-        time: "03:30 PM",
-        title: "GRAND FINALE",
-        specialType: "final",
-        fullDate: d(12, 13, 15),
-      },
-    ],
-  },
-];
-
-// Split Data Logic
-const PAST_SECTIONS = RAW_SECTIONS.filter((section) => {
-  const status = getStatus(section.data[0].fullDate);
-  return status === "FINISHED";
-}).map((s) => ({ ...s, isPast: true }));
-
-const UPCOMING_SECTIONS = RAW_SECTIONS.filter((section) => {
-  const status = getStatus(section.data[0].fullDate);
-  return status !== "FINISHED";
-});
 
 // --- Components ---
 
@@ -487,11 +97,33 @@ const TeamDisplay = ({
 };
 
 const MatchCard = ({ match }: { match: Match }) => {
-  const status = getStatus(match.fullDate);
+  const status = getStatus(match.fullDate, match.endTime);
   const isSpecial = !!match.specialType;
 
+  // Find result if available
+  const result = MATCH_RESULTS.find(
+    (r) =>
+      (r.team1 === match.team1 && r.team2 === match.team2) ||
+      (r.team1 === match.team2 && r.team2 === match.team1)
+  );
+
+  const winnerTeam =
+    result?.winner === "team1"
+      ? result.team1
+      : result?.winner === "team2"
+      ? result.team2
+      : null;
+
+  const isToday = getDiffDays(match.fullDate) === 0;
+
   return (
-    <View className="bg-white dark:bg-gray-900 mx-4 mb-3 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+    <View
+      className={`${
+        isToday
+          ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800"
+          : "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800"
+      } mx-4 mb-3 rounded-2xl shadow-sm border overflow-hidden`}
+    >
       {isSpecial && (
         <View
           className={`${match.specialType === "final" ? "bg-yellow-500" : "bg-blue-600"} py-1 px-3 items-center`}
@@ -504,23 +136,38 @@ const MatchCard = ({ match }: { match: Match }) => {
       <View className="flex-row items-center p-4 h-20">
         <TeamDisplay name={match.team1} align="left" />
         <View className="items-center w-24">
-          {status === "FINISHED" ? (
-            <View className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-md">
-              <Text className="text-gray-600 dark:text-gray-400 font-bold text-xs">
-                FT
-              </Text>
+          {(status === "FINISHED" || status === "ENDED") ? (
+            <View className="items-center justify-center w-24">
+              {winnerTeam ? (
+                <View className="items-center">
+                  <Text
+                    style={{ color: TEAM_ASSETS[winnerTeam]?.color }}
+                    className="text-[10px] font-extrabold text-center leading-3"
+                  >
+                    {winnerTeam}
+                  </Text>
+                  <Text
+                    style={{ color: TEAM_ASSETS[winnerTeam]?.color }}
+                    className="text-[9px] font-bold text-center mt-0.5"
+                  >
+                    WON
+                  </Text>
+                </View>
+              ) : (
+                <Text className="text-gray-500 text-[10px] font-bold">Ended</Text>
+              )}
             </View>
           ) : (
             <View className="items-center">
-              {status === "TODAY" && (
+              {status === "LIVE" && (
                 <View className="bg-red-100 dark:bg-red-900 px-2 py-[2px] rounded mb-1">
                   <Text className="text-[8px] text-red-600 dark:text-red-300 font-bold uppercase">
-                    Live/Today
+                    LIVE
                   </Text>
                 </View>
               )}
               <Text className="text-gray-900 dark:text-white font-extrabold text-sm">
-                {match.time}
+                {formatTimeFromDate(match.fullDate)}
               </Text>
               <Text className="text-gray-400 text-[10px] font-medium">
                 NPL T20
@@ -530,6 +177,30 @@ const MatchCard = ({ match }: { match: Match }) => {
         </View>
         <TeamDisplay name={match.team2} align="right" />
       </View>
+      {/* Result Footer */}
+      {result && (
+        <View className="bg-gray-50 dark:bg-gray-800 px-4 py-2 flex-row justify-between items-center border-t border-gray-100 dark:border-gray-700">
+          <Text
+            className={`text-[10px] font-bold ${
+              result.winner === "team1"
+                ? "text-green-600"
+                : "text-gray-500 dark:text-gray-400"
+            }`}
+          >
+            {result.t1Score.runs}/{result.t1Score.wickets} ({result.t1Score.overs})
+          </Text>
+          <Text className="text-[10px] text-gray-400 font-medium">vs</Text>
+          <Text
+            className={`text-[10px] font-bold ${
+              result.winner === "team2"
+                ? "text-green-600"
+                : "text-gray-500 dark:text-gray-400"
+            }`}
+          >
+            {result.t2Score.runs}/{result.t2Score.wickets} ({result.t2Score.overs})
+          </Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -537,15 +208,29 @@ const MatchCard = ({ match }: { match: Match }) => {
 const SectionHeader = ({
   title,
   isPast,
+  isToday,
 }: {
   title: string;
   isPast?: boolean;
+  isToday?: boolean;
 }) => (
   <View
-    className={`px-4 py-3 ${isPast ? "bg-gray-100/90 dark:bg-gray-800/90" : "bg-gray-50/95 dark:bg-black/95"} backdrop-blur-sm`}
+    className={`px-4 py-3 flex-row items-center justify-between ${
+      isToday
+        ? "bg-blue-200 dark:bg-blue-800 border-l-4 border-blue-600"
+        : isPast
+        ? "bg-gray-100/90 dark:bg-gray-800/90"
+        : "bg-gray-50/95 dark:bg-black/95"
+    } backdrop-blur-sm`}
   >
     <Text
-      className={`font-bold text-xs uppercase tracking-widest ${isPast ? "text-gray-400" : "text-gray-500 dark:text-gray-300"}`}
+      className={`font-bold text-xs uppercase tracking-widest ${
+        isToday
+          ? "text-blue-900 dark:text-blue-100"
+          : isPast
+          ? "text-gray-400"
+          : "text-gray-500 dark:text-gray-300"
+      }`}
     >
       {title}
     </Text>
@@ -554,17 +239,55 @@ const SectionHeader = ({
 
 export default function FixturesScreen() {
   const navigation = useNavigation();
-  const [showHistory, setShowHistory] = useState(false);
+  const [showOlder, setShowOlder] = useState(false);
+  const [showFuture, setShowFuture] = useState(false);
 
-  const toggleHistory = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowHistory(!showHistory);
+  // Memoized section categorization to prevent unnecessary recalculations
+  const { olderSections, coreSections, futureSections } = useMemo(() => {
+    const { older, core, future } = categorizeSectionsByDate(RAW_SECTIONS);
+
+    // Enrich sections with computed title and flags
+    const enrichSections = (sections: any[]) => {
+      return sections.map((section) => ({
+        ...section,
+        title: getDayTitle(section.data[0].fullDate),
+        isPast: getDiffDays(section.data[0].fullDate) < 0,
+        isToday: getDiffDays(section.data[0].fullDate) === 0,
+      } as SectionData));
+    };
+
+    return {
+      olderSections: enrichSections(older),
+      coreSections: enrichSections(core),
+      futureSections: enrichSections(future),
+    };
+  }, []);
+
+  const toggleOlder = () => {
+    setShowOlder(!showOlder);
   };
 
-  // Combine sections dynamically
-  const activeSections = showHistory
-    ? [...PAST_SECTIONS, ...UPCOMING_SECTIONS]
-    : UPCOMING_SECTIONS;
+  const toggleFuture = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setShowFuture(!showFuture);
+  };
+
+  // Dynamically build sections based on visibility toggles
+  const buttonSection: SectionData = {
+    title: "Controls",
+    data: [{ id: "btn-older", team1: "", team2: "", fullDate: new Date(), isButton: true }],
+    isButtonSection: true,
+  };
+
+  const activeSections = useMemo(
+    () => [
+      buttonSection,
+      ...(showOlder ? olderSections : []),
+      ...coreSections,
+      ...(showFuture ? futureSections : []),
+    ],
+    [showOlder, showFuture, olderSections, coreSections, futureSections]
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50 dark:bg-black" edges={["top"]}>
@@ -581,39 +304,64 @@ export default function FixturesScreen() {
       </View>
 
       <SectionList
+        maintainVisibleContentPosition={{
+          minIndexForVisible: 1, // Track the item after the button
+        }}
         sections={activeSections}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() =>
-              (navigation as any).navigate("MatchDetail", { match: item })
-            }
-          >
-            <MatchCard match={item} />
-          </TouchableOpacity>
-        )}
-        renderSectionHeader={({ section: { title, isPast } }) => (
-          <SectionHeader title={title} isPast={isPast} />
-        )}
+        renderItem={({ item }) => {
+          if (item.isButton) {
+            return olderSections.length > 0 ? (
+              <TouchableOpacity
+                onPress={toggleOlder}
+                activeOpacity={0.7}
+                className="mx-4 my-3 p-3 bg-gray-200 dark:bg-gray-800 rounded-xl flex-row items-center justify-center"
+              >
+                <Text className="text-gray-600 dark:text-gray-300 font-bold text-sm mr-2">
+                  {showOlder ? "Hide Previous Fixtures" : "Show Previous Fixtures"}
+                </Text>
+                <Text className="text-gray-500 dark:text-gray-400 text-xs">
+                  {showOlder ? "▼" : "▲"}
+                </Text>
+              </TouchableOpacity>
+            ) : null;
+          }
+          return (
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={() =>
+                (navigation as any).navigate("MatchDetail", { match: item })
+              }
+            >
+              <MatchCard match={item} />
+            </TouchableOpacity>
+          );
+        }}
+        renderSectionHeader={({ section }) => {
+          if (section.isButtonSection) return null;
+          return (
+            <SectionHeader
+              title={section.title}
+              isPast={section.isPast}
+              isToday={section.isToday}
+            />
+          );
+        }}
         stickySectionHeadersEnabled={true}
         contentContainerStyle={{ paddingBottom: 20 }}
         showsVerticalScrollIndicator={false}
-        // Custom Header Component for the List to Toggle History
-        ListHeaderComponent={
-          PAST_SECTIONS.length > 0 ? (
+        ListFooterComponent={
+          futureSections.length > 0 ? (
             <TouchableOpacity
-              onPress={toggleHistory}
+              onPress={toggleFuture}
               activeOpacity={0.7}
               className="mx-4 my-3 p-3 bg-gray-200 dark:bg-gray-800 rounded-xl flex-row items-center justify-center"
             >
               <Text className="text-gray-600 dark:text-gray-300 font-bold text-sm mr-2">
-                {showHistory
-                  ? "Hide Completed Matches"
-                  : `Show ${PAST_SECTIONS.length} Completed Match Days`}
+                {showFuture ? "Hide Upcoming Fixtures" : `Show all Upcoming Fixtures`}
               </Text>
               <Text className="text-gray-500 dark:text-gray-400 text-xs">
-                {showHistory ? "▲" : "▼"}
+                {showFuture ? "▲" : "▼"}
               </Text>
             </TouchableOpacity>
           ) : null

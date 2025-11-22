@@ -43,7 +43,7 @@ export default function TableScreen() {
         <View className="flex-row items-center justify-center mt-4 opacity-60">
           <View className="w-2 h-2 rounded-full bg-blue-600 mr-2" />
           <Text className="text-xs text-gray-500 dark:text-gray-400">
-            Qualified for Playoffs (Top 4)
+            Qualify for Playoffs (Top 4)
           </Text>
         </View>
       </ScrollView>

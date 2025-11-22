@@ -94,7 +94,7 @@ function RootNavigator() {
           }}
         />
         <Tab.Screen
-          name="Details"
+          name="Teams"
           component={DetailsStackNavigator}
           options={{
             tabBarIcon: ({ color, size }) => (

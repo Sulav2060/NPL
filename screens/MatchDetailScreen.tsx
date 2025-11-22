@@ -11,7 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import NPL_TEAMS, { Team } from "./components/constants/data";
-import { calculateTable } from "./components/constants/tableLogic";
+import { calculateTable, MATCH_RESULTS } from "./components/constants/tableLogic";
 import { TableHeader, TableRow, TEAM_LOGOS } from "./components/TableComponent";
 
 // --- Types ---
@@ -29,12 +29,18 @@ export default function MatchDetailScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { match } = route.params as { match: Match };
-  const [activeTab, setActiveTab] = useState<"info" | "squad" | "table">("info");
+  const [activeTab, setActiveTab] = useState<"info" | "squad" | "table" | "score">("info");
 
   const team1Data = NPL_TEAMS.find((t) => t.name === match.team1);
   const team2Data = NPL_TEAMS.find((t) => t.name === match.team2);
 
   const tableData = useMemo(() => calculateTable(), []);
+
+  const result = MATCH_RESULTS.find(
+    (r) =>
+      (r.team1 === match.team1 && r.team2 === match.team2) ||
+      (r.team1 === match.team2 && r.team2 === match.team1)
+  );
 
   const renderHeader = () => (
     <View className="bg-white dark:bg-gray-900 pb-4 border-b border-gray-200 dark:border-gray-800">
@@ -57,20 +63,57 @@ export default function MatchDetailScreen() {
             className="w-16 h-16 mb-2"
             resizeMode="contain"
           />
-          <Text className="text-xs font-bold text-center text-gray-900 dark:text-white">
+          <Text className="text-xs font-bold text-center text-gray-900 dark:text-white mb-1">
             {match.team1}
           </Text>
+          {result && (
+            <Text className="text-sm font-extrabold text-gray-900 dark:text-white">
+              {result.team1 === match.team1
+                ? `${result.t1Score.runs}/${result.t1Score.wickets}`
+                : `${result.t2Score.runs}/${result.t2Score.wickets}`}
+            </Text>
+          )}
+          {result && (
+            <Text className="text-[10px] text-gray-500">
+              {result.team1 === match.team1
+                ? `(${result.t1Score.overs} ov)`
+                : `(${result.t2Score.overs} ov)`}
+            </Text>
+          )}
         </View>
 
         <View className="items-center w-1/3">
-          <Text className="text-xs font-bold text-gray-500 mb-1">
-            {match.time}
-          </Text>
-          <View className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
-            <Text className="text-xs font-bold text-gray-600 dark:text-gray-300">
-              VS
-            </Text>
-          </View>
+          {result ? (
+            <View className="items-center">
+              <Text className="text-[10px] font-bold text-gray-500 uppercase mb-1">
+                Result
+              </Text>
+              <View className="bg-green-100 dark:bg-green-900 px-2 py-1 rounded mb-1">
+                <Text className="text-[10px] font-bold text-green-700 dark:text-green-300 text-center">
+                  {result.winner === "team1"
+                    ? match.team1 === result.team1
+                      ? `${match.team1} Won`
+                      : `${match.team2} Won`
+                    : result.winner === "team2"
+                    ? match.team2 === result.team2
+                      ? `${match.team2} Won`
+                      : `${match.team1} Won`
+                    : "Draw/Tie"}
+                </Text>
+              </View>
+            </View>
+          ) : (
+            <>
+              <Text className="text-xs font-bold text-gray-500 mb-1">
+                {match.time}
+              </Text>
+              <View className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+                <Text className="text-xs font-bold text-gray-600 dark:text-gray-300">
+                  VS
+                </Text>
+              </View>
+            </>
+          )}
         </View>
 
         <View className="items-center w-1/3">
@@ -79,9 +122,23 @@ export default function MatchDetailScreen() {
             className="w-16 h-16 mb-2"
             resizeMode="contain"
           />
-          <Text className="text-xs font-bold text-center text-gray-900 dark:text-white">
+          <Text className="text-xs font-bold text-center text-gray-900 dark:text-white mb-1">
             {match.team2}
           </Text>
+          {result && (
+            <Text className="text-sm font-extrabold text-gray-900 dark:text-white">
+              {result.team2 === match.team2
+                ? `${result.t2Score.runs}/${result.t2Score.wickets}`
+                : `${result.t1Score.runs}/${result.t1Score.wickets}`}
+            </Text>
+          )}
+          {result && (
+            <Text className="text-[10px] text-gray-500">
+              {result.team2 === match.team2
+                ? `(${result.t2Score.overs} ov)`
+                : `(${result.t1Score.overs} ov)`}
+            </Text>
+          )}
         </View>
       </View>
     </View>
@@ -89,7 +146,7 @@ export default function MatchDetailScreen() {
 
   const renderTabs = () => (
     <View className="flex-row bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-      {["info", "squad", "table"].map((tab) => (
+      {["info", "score", "squad", "table"].map((tab) => (
         <TouchableOpacity
           key={tab}
           onPress={() => setActiveTab(tab as any)}
@@ -112,6 +169,83 @@ export default function MatchDetailScreen() {
       ))}
     </View>
   );
+
+  const renderScore = () => {
+    if (!result) {
+      return (
+        <View className="flex-1 items-center justify-center p-8">
+          <Text className="text-gray-500 text-center">
+            Match has not started yet. Scores will be available once the match begins.
+          </Text>
+        </View>
+      );
+    }
+
+    const t1 = result.team1 === match.team1 ? result.t1Score : result.t2Score;
+    const t2 = result.team2 === match.team2 ? result.t2Score : result.t1Score;
+
+    return (
+      <ScrollView className="flex-1 p-4">
+        {/* Team 1 Scorecard Summary */}
+        <View className="bg-white dark:bg-gray-900 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 mb-4">
+          <View className="flex-row justify-between items-center mb-2">
+            <View className="flex-row items-center">
+              <Image
+                source={TEAM_LOGOS[match.team1]}
+                className="w-6 h-6 mr-2"
+                resizeMode="contain"
+              />
+              <Text className="font-bold text-gray-900 dark:text-white">
+                {match.team1}
+              </Text>
+            </View>
+            <Text className="font-extrabold text-lg text-gray-900 dark:text-white">
+              {t1.runs}/{t1.wickets}
+            </Text>
+          </View>
+          <Text className="text-xs text-gray-500 text-right">
+            {t1.overs} Overs
+          </Text>
+        </View>
+
+        {/* Team 2 Scorecard Summary */}
+        <View className="bg-white dark:bg-gray-900 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 mb-4">
+          <View className="flex-row justify-between items-center mb-2">
+            <View className="flex-row items-center">
+              <Image
+                source={TEAM_LOGOS[match.team2]}
+                className="w-6 h-6 mr-2"
+                resizeMode="contain"
+              />
+              <Text className="font-bold text-gray-900 dark:text-white">
+                {match.team2}
+              </Text>
+            </View>
+            <Text className="font-extrabold text-lg text-gray-900 dark:text-white">
+              {t2.runs}/{t2.wickets}
+            </Text>
+          </View>
+          <Text className="text-xs text-gray-500 text-right">
+            {t2.overs} Overs
+          </Text>
+        </View>
+
+        <View className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800">
+          <Text className="text-center text-blue-800 dark:text-blue-300 font-bold text-sm">
+            {result.winner === "team1"
+              ? match.team1 === result.team1
+                ? `${match.team1} won by ...` // Add margin calculation if needed
+                : `${match.team2} won by ...`
+              : result.winner === "team2"
+              ? match.team2 === result.team2
+                ? `${match.team2} won by ...`
+                : `${match.team1} won by ...`
+              : "Match Tied"}
+          </Text>
+        </View>
+      </ScrollView>
+    );
+  };
 
   const renderInfo = () => (
     <View className="p-4">
@@ -216,6 +350,7 @@ export default function MatchDetailScreen() {
       {renderTabs()}
       <View className="flex-1">
         {activeTab === "info" && renderInfo()}
+        {activeTab === "score" && renderScore()}
         {activeTab === "squad" && renderSquads()}
         {activeTab === "table" && renderTable()}
       </View>
