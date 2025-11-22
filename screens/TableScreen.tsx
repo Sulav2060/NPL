@@ -245,13 +245,15 @@ const TableRow = ({ item, index }: { item: TableRowData; index: number }) => {
 
   return (
     <View
-      className={`flex-row items-center py-3 px-2 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 ${isTop4 ? "bg-blue-50/30 dark:bg-blue-900/10" : ""}`}
+      className="flex-row items-center py-3 px-2 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 relative"
     >
+      {isTop4 && (
+        <View className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600" />
+      )}
+
       {/* Position */}
       <View className="w-8 items-center">
-        <Text
-          className={`text-xs font-bold ${isTop4 ? "text-blue-600 dark:text-blue-400" : "text-gray-500"}`}
-        >
+        <Text className="text-xs font-bold text-gray-500">
           {index + 1}
         </Text>
       </View>
