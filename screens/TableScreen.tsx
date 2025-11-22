@@ -35,39 +35,55 @@ type MatchResult = {
 };
 
 const MATCH_RESULTS: MatchResult[] = [
-  // Match 1: Janakpur vs Kathmandu (Kathmandu Won)
+  // Match 1: Janakpur vs Kathmandu Gorkhas
   {
     team1: "Janakpur Bolts",
     team2: "Kathmandu Gorkhas",
-    t1Score: { runs: 145, wickets: 8, overs: 20.0 },
-    t2Score: { runs: 146, wickets: 4, overs: 18.2 },
+    t1Score: { runs: 130, wickets: 6, overs: 20.0 },
+    t2Score: { runs: 131, wickets: 5, overs: 18.0 }, // 18 overs, won with 12 balls to spare :contentReference[oaicite:0]{index=0}
     winner: "team2",
   },
-  // Match 2: Chitwan vs Karnali (Chitwan Won)
+  // Match 2: Karnali vs Chitwan Rhinos
   {
-    team1: "Chitwan Rhinos",
-    team2: "Karnali Yaks",
-    t1Score: { runs: 160, wickets: 6, overs: 20.0 },
-    t2Score: { runs: 130, wickets: 10, overs: 19.0 }, // All out count as 20 overs for NRR calc
-    winner: "team1",
+    team1: "Karnali Yaks",
+    team2: "Chitwan Rhinos",
+    t1Score: { runs: 166, wickets: 3, overs: 20.0 }, // :contentReference[oaicite:1]{index=1}
+    t2Score: { runs: 171, wickets: 6, overs: 19.1 }, // :contentReference[oaicite:2]{index=2}
+    winner: "team2",
   },
-  // Match 3: Biratnagar vs Pokhara (Biratnagar Won)
+  // Match 3: Biratnagar Kings vs Pokhara Avengers
   {
     team1: "Biratnagar Kings",
     team2: "Pokhara Avengers",
-    t1Score: { runs: 180, wickets: 3, overs: 20.0 },
-    t2Score: { runs: 150, wickets: 7, overs: 20.0 },
+    t1Score: { runs: 220, wickets: 6, overs: 20.0 }, // :contentReference[oaicite:3]{index=3}
+    t2Score: { runs: 167, wickets: undefined, overs: 18.5 }, // all out in 18.5 overs :contentReference[oaicite:4]{index=4}
     winner: "team1",
   },
-  // Match 4: Kathmandu vs Sudurpaschim (Kathmandu Won)
+  // Match 4: Kathmandu Gorkhas vs Sudurpaschim Royals
   {
     team1: "Kathmandu Gorkhas",
     team2: "Sudurpaschim Royals",
-    t1Score: { runs: 170, wickets: 5, overs: 20.0 },
-    t2Score: { runs: 120, wickets: 10, overs: 16.4 },
-    winner: "team1",
+    t1Score: { runs: 118, wickets: 10, overs: 16.5 },
+    t2Score: { runs: 147, wickets: 10, overs: 20.0 },
+    winner: "team2",
   },
-  // Add more matches here as they happen...
+
+  // Match 5: Chitwan Rhinos vs Lumbini Lions
+  {
+    team1: "Chitwan Rhinos",
+    team2: "Lumbini Lions",
+    t1Score: { runs: 142, wickets: 7, overs: 20.0 }, // :contentReference[oaicite:7]{index=7}
+    t2Score: { runs: 146, wickets: 4, overs: 18.3 }, // (18.3 overs) :contentReference[oaicite:8]{index=8}
+    winner: "team2",
+  },
+  // Match 6: Pokhara Avengers vs Sudurpaschim Royals
+  {
+    team1: "Pokhara Avengers",
+    team2: "Sudurpaschim Royals",
+    t1Score: { runs: 175, wickets: 8, overs: 20.0 }, // :contentReference[oaicite:9]{index=9}
+    t2Score: { runs: 193, wickets: 7, overs: 20.0 }, // :contentReference[oaicite:10]{index=10}
+    winner: "team2",
+  },
 ];
 
 // ==========================================
