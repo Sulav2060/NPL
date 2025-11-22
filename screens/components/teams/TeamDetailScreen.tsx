@@ -2,7 +2,6 @@ import React, { useRef } from "react";
 import {
   View,
   Text,
-  FlatList,
   Image,
   TouchableOpacity,
   ImageSourcePropType,
@@ -26,7 +25,6 @@ import Lumbini_logo from "../constants/lumbini_logo.png";
 import Pkr_logo from "../constants/pkr_logo.png";
 import Rhinos_logo from "../constants/rhinos-logo.webp";
 import Sudurpachim_logo from "../constants/sudurpachim_logo.png";
-
 const { width } = Dimensions.get("window");
 
 const TEAM_LOGOS: Record<string, ImageSourcePropType> = {
@@ -44,6 +42,8 @@ export default function TeamDetailScreen({ route, navigation }: any) {
   const { id } = route.params;
   const team = NPL_TEAMS.find((t) => t.id === id);
   const insets = useSafeAreaInsets();
+
+  // Header height calculation (Notch aware)
   const HEADER_HEIGHT = Platform.OS === "ios" ? 110 : 80 + insets.top;
 
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -57,33 +57,38 @@ export default function TeamDetailScreen({ route, navigation }: any) {
 
   const localLogo = TEAM_LOGOS[team.id] || { uri: team.logo };
 
-  // 1. Header Background Opacity
+  // --- ANIMATION INTERPOLATIONS ---
+
+  // 1. Header Background Opacity (Fades in when scrolling up)
   const headerOpacity = scrollY.interpolate({
     inputRange: [0, 150],
     outputRange: [0, 1],
     extrapolate: "clamp",
   });
 
-  // 2. Logo Shrink & Move
+  // 2. Logo Shrink Scale (Starts big, shrinks to navbar size)
   const logoScale = scrollY.interpolate({
     inputRange: [0, 150],
-    outputRange: [1, 0.35], // Shrink to 35% size
+    outputRange: [1, 0.35],
     extrapolate: "clamp",
   });
 
+  // 3. Logo Vertical Movement (Moves up to header)
   const logoTranslateY = scrollY.interpolate({
     inputRange: [0, 150],
-    outputRange: [0, -40], // Move UP towards header
+    outputRange: [0, -50],
     extrapolate: "clamp",
   });
 
+  // 4. Logo Horizontal Movement (Moves to top-right corner)
+  // Adjust '60' to position exactly where you want it in the header
   const logoTranslateX = scrollY.interpolate({
     inputRange: [0, 150],
-    outputRange: [0, width / 2 - 60], // Move RIGHT towards corner
+    outputRange: [0, width / 2 - 50],
     extrapolate: "clamp",
   });
 
-  // 3. Text Fade Out
+  // 5. Text Fade Out (Team name disappears as you scroll)
   const textOpacity = scrollY.interpolate({
     inputRange: [0, 80],
     outputRange: [1, 0],
@@ -91,16 +96,16 @@ export default function TeamDetailScreen({ route, navigation }: any) {
   });
 
   return (
-    <View className="flex-1 bg-gray-300 dark:bg-gray-900 overflow-hidden">
+    <View className="flex-1 bg-white dark:bg-gray-900 overflow-hidden">
       <StatusBar barStyle="light-content" />
 
-      {/* --- DYNAMIC BACKGROUND --- */}
+      {/* --- DYNAMIC BACKGROUND CURVE --- */}
       <View
         style={{ backgroundColor: team.color, height: width * 1.2 }}
-        className="absolute top-[-90] left-[-100vw]  right-[-100vw] rounded-b-[1000px] "
+        className="absolute top-[-90] left-[-100vw] right-[-100vw] rounded-b-[1000px]"
       />
 
-      {/* --- STICKY HEADER BACKGROUND (Blur/Solid) --- */}
+      {/* --- STICKY HEADER BACKGROUND --- */}
       <Animated.View
         style={{
           position: "absolute",
@@ -110,21 +115,27 @@ export default function TeamDetailScreen({ route, navigation }: any) {
           height: HEADER_HEIGHT,
           opacity: headerOpacity,
           zIndex: 40,
-          // Android Fix: Fallback to solid dark color because Blur doesn't overlay well
-          backgroundColor:
-            Platform.OS === "android" ? "rgba(20,20,20,0.95)" : "transparent",
         }}
       >
-        {/* iOS Glass Effect */}
-        {Platform.OS === "ios" && (
-          <BlurView intensity={80} tint="dark" style={{ flex: 1 }} />
+        {Platform.OS === "ios" ? (
+          // iOS: Real Blur Effect
+          <BlurView
+            intensity={80}
+            tint="dark"
+            style={{ flex: 1, backgroundColor: team.color + "33" }}
+          />
+        ) : (
+          // Android: Solid Translucent Color (Blur is often buggy on Android absolute overlays)
+          <View
+            style={{ flex: 1, backgroundColor: team.color, opacity: 0.95 }}
+          />
         )}
       </Animated.View>
 
       {/* --- FIXED BACK BUTTON --- */}
       <View
         style={{
-          top: insets.top + 10,
+          top: insets.top + 30,
           left: 16,
           position: "absolute",
           zIndex: 60,
@@ -132,7 +143,7 @@ export default function TeamDetailScreen({ route, navigation }: any) {
       >
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full items-center justify-center"
+          className="w-12 h-12 bg-black/20 rounded-full items-center justify-center"
         >
           <Text className="text-xl text-white font-bold pb-1">←</Text>
         </TouchableOpacity>
@@ -143,7 +154,7 @@ export default function TeamDetailScreen({ route, navigation }: any) {
         data={team.players}
         keyExtractor={(p) => p.id}
         contentContainerStyle={{
-          paddingTop: HEADER_HEIGHT + 180, // Clear the Hero area
+          paddingTop: HEADER_HEIGHT + 200, // Push list down to clear Hero area
           paddingBottom: 40,
         }}
         showsVerticalScrollIndicator={false}
@@ -195,21 +206,21 @@ export default function TeamDetailScreen({ route, navigation }: any) {
         )}
       />
 
-      {/* --- HERO / HEADER LOGO ANIMATION --- */}
+      {/* --- ANIMATED HERO SECTION (Logo & Title) --- */}
       <Animated.View
         style={{
           position: "absolute",
           top: 0,
           left: 0,
           right: 0,
-          height: HEADER_HEIGHT + 200, // Height of hero area
+          height: HEADER_HEIGHT + 220, // Initial Hero Height
           alignItems: "center",
           justifyContent: "center",
           zIndex: 50,
-          pointerEvents: "none", // Let clicks pass through to list
+          pointerEvents: "none", // Allow clicks to pass through to the list/buttons
         }}
       >
-        {/* Logo Container */}
+        {/* Animated Logo Container */}
         <Animated.View
           style={{
             transform: [
@@ -226,14 +237,14 @@ export default function TeamDetailScreen({ route, navigation }: any) {
           />
         </Animated.View>
 
-        {/* Text Container (Fades out) */}
+        {/* Animated Text Container (Fades out) */}
         <Animated.View
           style={{ opacity: textOpacity, alignItems: "center", marginTop: 10 }}
         >
           <Text className="text-3xl font-black text-white text-center px-6 shadow-md">
             {team.name}
           </Text>
-          <View className="mt-2 bg-white/20 px-4 py-1 rounded-full">
+          <View className="mt-2 bg-white/20 px-4 py-1 rounded-full backdrop-blur-md">
             <Text className="text-white font-bold uppercase text-[10px] tracking-widest">
               {team.location}
             </Text>
