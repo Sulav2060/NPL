@@ -29,18 +29,21 @@ export default function MatchDetailScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { match } = route.params as { match: Match };
-  const [activeTab, setActiveTab] = useState<"info" | "squad" | "table" | "score">("info");
-
-  const team1Data = NPL_TEAMS.find((t) => t.name === match.team1);
-  const team2Data = NPL_TEAMS.find((t) => t.name === match.team2);
-
-  const tableData = useMemo(() => calculateTable(), []);
 
   const result = MATCH_RESULTS.find(
     (r) =>
       (r.team1 === match.team1 && r.team2 === match.team2) ||
       (r.team1 === match.team2 && r.team2 === match.team1)
   );
+
+  const [activeTab, setActiveTab] = useState<"info" | "squad" | "table" | "score">(
+    result ? "score" : "info"
+  );
+
+  const team1Data = NPL_TEAMS.find((t) => t.name === match.team1);
+  const team2Data = NPL_TEAMS.find((t) => t.name === match.team2);
+
+  const tableData = useMemo(() => calculateTable(), []);
 
   const renderHeader = () => (
     <View className="bg-white dark:bg-gray-900 pb-4 border-b border-gray-200 dark:border-gray-800">
