@@ -32,10 +32,12 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+import { useNavigation } from "@react-navigation/native";
+
 // --- Types ---
 type MatchStatus = "UPCOMING" | "LIVE" | "FINISHED" | "TODAY";
 
-type Match = {
+export type Match = {
   id: string;
   team1: string;
   team2: string;
@@ -551,6 +553,7 @@ const SectionHeader = ({
 );
 
 export default function FixturesScreen() {
+  const navigation = useNavigation();
   const [showHistory, setShowHistory] = useState(false);
 
   const toggleHistory = () => {
@@ -580,7 +583,16 @@ export default function FixturesScreen() {
       <SectionList
         sections={activeSections}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <MatchCard match={item} />}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() =>
+              (navigation as any).navigate("MatchDetail", { match: item })
+            }
+          >
+            <MatchCard match={item} />
+          </TouchableOpacity>
+        )}
         renderSectionHeader={({ section: { title, isPast } }) => (
           <SectionHeader title={title} isPast={isPast} />
         )}

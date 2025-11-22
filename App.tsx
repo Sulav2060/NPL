@@ -18,9 +18,19 @@ import StatsScreen from "./screens/StatsScreen";
 import DetailsScreen from "./screens/DetailsScreen";
 import TeamDetailScreen from "./screens/components/teams/TeamDetailScreen";
 import PlayerDetailScreen from "./screens/components/player/PlayerDetailScreen";
+import MatchDetailScreen from "./screens/MatchDetailScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+
+function FixturesStackNavigator() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="FixturesList" component={FixturesScreen} />
+      <Stack.Screen name="MatchDetail" component={MatchDetailScreen} />
+    </Stack.Navigator>
+  );
+}
 
 function DetailsStackNavigator() {
   return (
@@ -58,7 +68,7 @@ function RootNavigator() {
       >
         <Tab.Screen
           name="Fixtures"
-          component={FixturesScreen}
+          component={FixturesStackNavigator}
           options={{
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="calendar-outline" size={24} color={color} />
